@@ -1,1 +1,65 @@
+# Dokumentation LB1:
+**Idee:**
+Meine Idee für die LB1 war via Vagrant eine VM erstellen zu lassen, welche sich dann selbst aufsetzt mit Nginx, Prometheus und Grafana. Ich habe viel probiert, jedoch muss man sehr viele Sachen dabei konfigurieren und das kann man leider nicht ohne manuelle eingaben in der Shell. Aus diesem Grund musste ich mir eine neue Idee einfallen lassen.
 
+**Neue Idee:**
+Die neue Idee ist es via Vagrant eine VM aufzusetzten auf der Docker läuft und auf diesem Docker läuft ein Single Node Cluster von K3S (Rancher). Damit ist ein lightweight Kubernetes Single Node Cluster installiert. Um verschiedene Services laufen zu lassen auf dem Kubernetes benutze ich Helm (Helmcharts). Diese sind sehr gut und gratis. Damit habe ich vor Nginx laufen zu lassen und wenn die Zeit reicht auch Grafana mit Prometheus.
+
+**Umsetzung**
+Ich habe angefangen eine VM via Vagrant aufzusetzen und alles manuell auszuprobieren bevor ich alles via Vagrantfile machen lasse, damit ich jeden Schritt auswendig lerne und damit auch weiss was passiert.
+
+Angefangen habe ich indem ich die VM von Vagrant geupdated habe um sicherzugehen, dass alles auf dem neusten Stand ist.
+
+    apt update && apt upgrade
+
+Weiter geht es die Abhänigkeiten von Docker und Docker selbst zu installieren, damit ich dann K3S installieren kann.
+
+	sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+    
+	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    
+	sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+
+Jetzt haben wir alle Abhängigkeiten installiert und können Docker installlieren, starten und auf Boot automatisch starten lassen.
+	
+    sudo apt update
+    
+    sudo apt install docker-ce -y
+    
+    sudo systemctl start docker
+    
+    sudo systemctl enable docker
+
+Jetzt fügen wir noch für Docker einen Sudo User hinzu welcher benötigt wird. Dazu kommt noch eine Gruppe für Docker.
+    
+    sudo usermod -aG docker ${USER}
+    
+    newgrp docker
+
+Weiter geht es damit das wir K3S installieren und starten.
+
+    curl -sfL https://get.k3s.io | sh -s - --docker
+
+    sudo systemctl status k3s
+Mit dem nächsten Befehl überprüfen wir, auf welchem Node der Master laufen würde, wenn wir mehrere Nodes brauchen würde. An sich ist für uns jetzt dieser Befehl unnötig, weil wir ein Single Node Cluster haben.
+    
+    sudo kubectl get nodes -o wide
+
+Um auch für unseren laufenden Kubernetes Single Node Cluster auch Services zu verwenden benötigen wir ein Chart welcher die Services fertig konfiguriert hat. Dafür benutzen wir Helm, weil Helm Charts die besten sind die es im moment gibt.
+
+    wget https://get.helm.sh/helm-v3.6.0-linux-amd64.tar.gz
+    
+    tar -xf helm-v3.6.0-linux-amd64.tar.gz
+    
+    mv linux-amd64/helm /usr/local/bin/helm
+   
+Jetzt haben wir Helm installiert und jetzt benötigen wir noch ein Repository, um die Services zu bekommen. Als  Repo benutzen wir die Helmcharts in der Stable Version, dafür das keine Bugs enstehen sollten.
+  
+    helm repo add stable https://charts.helm.sh/stable
+    
+    helm repo update
+
+Damit wir jetzt ein Service brauchen können müssen wir diesen installieren und das geht via die Helmcharts.
+
+    helm install nginx-ingress stable/nginx-ingress --namespace kube-system \ --set defaultBackend.enabled=false
+    kubectl get pods -n kube-system -l app=nginx-ingress -o wide
