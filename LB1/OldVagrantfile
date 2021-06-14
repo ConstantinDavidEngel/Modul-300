@@ -43,7 +43,7 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
+  config.vm.synced_folder "../data", "/vagrant_data"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -64,26 +64,6 @@ Vagrant.configure("2") do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
-  
-  apt update
-  apt upgrade
-  sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-  sudo apt update
-  sudo apt install docker-ce -y
-  sudo systemctl start docker
-  sudo systemctl enable docker
-  sudo usermod -aG docker ${USER}
-  newgrp docker
-  curl -sfL https://get.k3s.io | sh -s - --docker
-  sudo systemctl status k3s
-  sudo kubectl get nodes -o wide
-  wget https://get.helm.sh/helm-v3.6.0-linux-amd64.tar.gz
-  tar -xf helm-v3.6.0-linux-amd64.tar.gz
-  mv linux-amd64/helm /usr/local/bin/helm
-  helm repo add stable https://charts.helm.sh/stable
-  helm repo update
-
+    bash /vagrant_data/nginx.sh
   SHELL
 end
