@@ -5,12 +5,11 @@ service nginx start
 rm /etc/nginx/sites-enabled/default
 echo "server {
        listen 80;
-       listen [::]:80;
-
-       root /vagrant_data/;
-       index index.html;
+       
+       server_name localhost;
 
        location / {
-               try_files $uri $uri/ =404;
+              root /vagrant_data/;
+              index index.html;
        }
 }" > /etc/nginx/sites-enabled/default
