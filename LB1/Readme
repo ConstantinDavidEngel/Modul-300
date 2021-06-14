@@ -1,11 +1,15 @@
 # Dokumentation LB1:
+
 **Idee:**
+
 Meine Idee für die LB1 war via Vagrant eine VM erstellen zu lassen, welche sich dann selbst aufsetzt mit Nginx, Prometheus und Grafana. Ich habe viel probiert, jedoch muss man sehr viele Sachen dabei konfigurieren und das kann man leider nicht ohne manuelle eingaben in der Shell. Aus diesem Grund musste ich mir eine neue Idee einfallen lassen.
 
 **Neue Idee:**
+
 Die neue Idee ist es via Vagrant eine VM aufzusetzten auf der Docker läuft und auf diesem Docker läuft ein Single Node Cluster von K3S (Rancher). Damit ist ein lightweight Kubernetes Single Node Cluster installiert. Um verschiedene Services laufen zu lassen auf dem Kubernetes benutze ich Helm (Helmcharts). Diese sind sehr gut und gratis. Damit habe ich vor Nginx laufen zu lassen und wenn die Zeit reicht auch Grafana mit Prometheus.
 
 **Umsetzung**
+
 Ich habe angefangen eine VM via Vagrant aufzusetzen und alles manuell auszuprobieren bevor ich alles via Vagrantfile machen lasse, damit ich jeden Schritt auswendig lerne und damit auch weiss was passiert.
 
 Angefangen habe ich indem ich die VM von Vagrant geupdated habe um sicherzugehen, dass alles auf dem neusten Stand ist.
